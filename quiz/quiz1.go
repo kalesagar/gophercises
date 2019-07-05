@@ -66,24 +66,26 @@ func CheckQuizzes() {
 	var correct int
 	limit := *timerLimit
 	timer := time.NewTimer(time.Duration(limit) * time.Second)
+solutionLoop:
 	for i, line := range lines {
+		fmt.Printf("The question number %d is %s \n", i+1, strings.TrimSpace(line[0]))
+		answer := make(chan string)
+		go func() {
+			var ans string
+			fmt.Scanf("%s", &ans)
+			answer <- ans
+		}()
 
 		select {
 		case <-timer.C:
-			fmt.Printf("Your Score is %d out of %d \n", correct, len(lines))
-			return
-		default:
-			fmt.Printf("The question number %d is %s \n", i+1, strings.TrimSpace(line[0]))
-			var answer string
-			fmt.Scanf("%s", &answer)
-			if strings.TrimSpace(answer) == strings.TrimSpace(line[1]) {
+			break solutionLoop
+		case abc := <-answer:
+			if strings.TrimSpace(abc) == strings.TrimSpace(line[1]) {
 				correct++
-				fmt.Println("\nCorrect Answer!!")
-			} else {
-				fmt.Println("\nWrong Answer!!")
 			}
 		}
 	}
+	fmt.Printf("Your Score is %d out of %d \n", correct, len(lines))
 }
 
 //Exit ...
